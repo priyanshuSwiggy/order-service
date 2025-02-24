@@ -7,6 +7,7 @@ import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.entity.Order;
 import com.swiggy.order.entity.OrderLine;
 import com.swiggy.order.exceptions.MenuItemNotFoundException;
+import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
 import com.swiggy.order.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,5 +104,37 @@ public class OrderServiceTest {
 
         assertTrue(result.isEmpty());
         verify(orderRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getOrderByIdSuccessfully() {
+        Order order = Order.builder()
+                .id(1L)
+                .restaurantId(1L)
+                .customerId(1L)
+                .deliveryAddress("123 Main St")
+                .orderLines(List.of(
+                        OrderLine.builder().id(1L).menuItemId(1L).menuItemName("Burger").price(5.0).quantity(2).build(),
+                        OrderLine.builder().id(2L).menuItemId(2L).menuItemName("Fries").price(3.0).quantity(1).build()
+                ))
+                .totalPrice(13.0)
+                .build();
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        OrderResponseDto result = orderService.getOrderById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getOrderId());
+        assertEquals("123 Main St", result.getDeliveryAddress());
+        assertEquals(2, result.getOrderLines().size());
+        verify(orderRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void getOrderByIdNotFound() {
+        when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(1L));
+        verify(orderRepository, times(1)).findById(1L);
     }
 }
