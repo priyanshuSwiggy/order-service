@@ -28,7 +28,6 @@ public class OrderController {
     public ResponseEntity<List<OrderResponseDto>> getAllOrders() {
         List<OrderResponseDto> orders = orderService.getAllOrders();
         return new ResponseEntity<>(orders, HttpStatus.OK);
-
     }
 
     @GetMapping("/{orderId}")

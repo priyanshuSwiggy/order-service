@@ -21,16 +21,16 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class OrderControllerTest {
     public static final String ORDERS_URL = "/orders";
     public static final String SPECIFIC_ORDER_URL = "/orders/{orderId}";
+    public static final String UPDATE_ORDER_STATUS_URL = "/orders/{orderId}/status";
 
     @Mock
     private OrderService orderService;
@@ -83,6 +83,38 @@ public class OrderControllerTest {
     }
 
     @Test
+    void testCreateOrderValidationFailsWhenRestaurantIdIsZero() throws Exception {
+        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
+                .restaurantId(0L)
+                .customerId(1L)
+                .deliveryAddress("123 Main St")
+                .orderLines(Collections.emptyList())
+                .build();
+
+        mockMvc.perform(post(ORDERS_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequestDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"restaurantId\":\"Restaurant Id should be positive\"}"));
+    }
+
+    @Test
+    void testCreateOrderValidationFailsWhenRestaurantIdIsNegative() throws Exception {
+        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
+                .restaurantId(-1L)
+                .customerId(1L)
+                .deliveryAddress("123 Main St")
+                .orderLines(Collections.emptyList())
+                .build();
+
+        mockMvc.perform(post(ORDERS_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequestDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"restaurantId\":\"Restaurant Id should be positive\"}"));
+    }
+
+    @Test
     void testCreateOrderValidationFailsWhenCustomerIdIsNull() throws Exception {
         final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
                 .restaurantId(1L)
@@ -111,7 +143,7 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequestDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().json("{\"deliveryAddress\":\"Delivery address cannot be empty\"}"));
+                .andExpect(content().json("{\"deliveryAddress\":\"Delivery address cannot be null or empty\"}"));
     }
 
     @Test
