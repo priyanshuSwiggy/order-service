@@ -1,7 +1,9 @@
 package com.swiggy.order.dto;
 
-import com.swiggy.order.entity.OrderLine;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
 
@@ -23,5 +25,5 @@ public class OrderRequestDto {
     private String deliveryAddress;
 
     @NotNull(message = "Order lines cannot be null")
-    private List<OrderLine> orderLines;
+    private List<OrderLineRequestDto> orderLines;
 }

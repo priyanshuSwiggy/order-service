@@ -9,11 +9,13 @@ import java.util.List;
 @Data
 @Builder
 public class OrderResponseDto {
+    private Long orderId;
+
     private Long restaurantId;
 
     private Long customerId;
 
     private String deliveryAddress;
 
-    private List<OrderLine> orderLines;
+    private List<OrderLineResponseDto> orderLines;
 }

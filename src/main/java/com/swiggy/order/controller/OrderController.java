@@ -21,7 +21,7 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<String> createOrder(@Valid @RequestBody OrderRequestDto orderRequestDto) {
         orderService.createOrder(orderRequestDto);
-        return new ResponseEntity <>("Order created successfully", HttpStatus.CREATED);
+        return new ResponseEntity<>("Order created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -38,6 +38,6 @@ public class OrderController {
     @PutMapping("/{orderId}/status")
     public ResponseEntity<String> updateOrderStatus(@Valid @PathVariable Long orderId) {
         orderService.updateOrderStatus(orderId);
-        return new ResponseEntity <>("Order status updated successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Order status updated successfully", HttpStatus.OK);
     }
 }
