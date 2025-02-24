@@ -279,4 +279,16 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void testUpdateOrderStatusSuccessfully() throws Exception {
+        doNothing().when(orderService).updateOrderStatus(1L);
+
+        mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Order status updated successfully"));
+    }
+
+
 }
