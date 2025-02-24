@@ -2,6 +2,7 @@ package com.swiggy.order.controller;
 
 import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
+import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +37,8 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/status")
-    public ResponseEntity<String> updateOrderStatus(@Valid @PathVariable Long orderId) {
-        orderService.updateOrderStatus(orderId);
+    public ResponseEntity<String> updateOrderStatus(@Valid @PathVariable Long orderId, @RequestParam OrderStatus orderStatus) {
+        orderService.updateOrderStatus(orderId, orderStatus);
         return new ResponseEntity<>("Order status updated successfully", HttpStatus.OK);
     }
 }

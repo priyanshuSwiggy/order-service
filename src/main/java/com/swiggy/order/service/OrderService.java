@@ -6,6 +6,7 @@ import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.entity.Order;
 import com.swiggy.order.entity.OrderLine;
+import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
 import com.swiggy.order.repository.OrderRepository;
@@ -36,6 +37,7 @@ public class OrderService {
                 .customerId(orderRequestDto.getCustomerId())
                 .totalPrice(totalPrice)
                 .deliveryAddress(orderRequestDto.getDeliveryAddress())
+                .status(OrderStatus.CREATED)
                 .orderLines(orderLines)
                 .build();
         orderRepository.save(order);
@@ -53,6 +55,10 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
     }
 
-    public void updateOrderStatus(Long orderId) {
+    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
+        order.setStatus(orderStatus);
+        orderRepository.save(order);
     }
 }

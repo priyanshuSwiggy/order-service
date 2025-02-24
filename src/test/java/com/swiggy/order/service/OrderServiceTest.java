@@ -6,6 +6,7 @@ import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.entity.Order;
 import com.swiggy.order.entity.OrderLine;
+import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.MenuItemNotFoundException;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
@@ -137,4 +138,27 @@ public class OrderServiceTest {
         assertThrows(OrderNotFoundException.class, () -> orderService.getOrderById(1L));
         verify(orderRepository, times(1)).findById(1L);
     }
+
+    @Test
+    void updateOrderStatusSuccessfully() {
+        Order order = Order.builder()
+            .id(1L)
+                .status(OrderStatus.CREATED)
+                .build();
+
+    when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        orderService.updateOrderStatus(1L, OrderStatus.DELIVERED);
+
+    verify(orderRepository, times(1)).save(order);
+    assertEquals(OrderStatus.DELIVERED, order.getStatus());
+}
+
+@Test
+void updateOrderStatusNotFound() {
+    when(orderRepository.findById(1L)).thenReturn(Optional.empty());
+
+    assertThrows(OrderNotFoundException.class, () -> orderService.updateOrderStatus(1L, OrderStatus.DELIVERED));
+}
+
 }

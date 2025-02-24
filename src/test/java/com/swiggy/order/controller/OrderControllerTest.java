@@ -3,6 +3,7 @@ package com.swiggy.order.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
+import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.GlobalExceptionHandler;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.service.OrderService;
@@ -282,9 +283,10 @@ public class OrderControllerTest {
 
     @Test
     void testUpdateOrderStatusSuccessfully() throws Exception {
-        doNothing().when(orderService).updateOrderStatus(1L);
+        doNothing().when(orderService).updateOrderStatus(1L, OrderStatus.DELIVERED);
 
         mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, 1L)
+                        .param("orderStatus", OrderStatus.DELIVERED.name())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Order status updated successfully"));
@@ -292,9 +294,10 @@ public class OrderControllerTest {
 
     @Test
     void testUpdateOrderStatusNotFound() throws Exception {
-        doThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND)).when(orderService).updateOrderStatus(1L);
+        doThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND)).when(orderService).updateOrderStatus(1L, OrderStatus.DELIVERED);
 
         mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, 1L)
+                        .param("orderStatus", OrderStatus.DELIVERED.name())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Order not found"));
