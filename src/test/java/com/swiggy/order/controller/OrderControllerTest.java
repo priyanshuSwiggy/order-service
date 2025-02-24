@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.exceptions.GlobalExceptionHandler;
+import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -159,5 +161,43 @@ public class OrderControllerTest {
         String expectedResponse = "[]";
         String actualResponse = mvcResult.getResponse().getContentAsString();
         assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void testGetOrderByIdSuccessfully() throws Exception {
+        final OrderResponseDto order = OrderResponseDto.builder()
+                .restaurantId(1L)
+                .customerId(1L)
+                .deliveryAddress("123 Main St")
+                .orderLines(Collections.emptyList())
+                .build();
+        when(orderService.getOrderById(1L)).thenReturn(order);
+
+        MvcResult mvcResult = mockMvc.perform(get(SPECIFIC_ORDER_URL, 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(order)))
+                .andReturn();
+
+        String expectedResponse = objectMapper.writeValueAsString(order);
+        String actualResponse = mvcResult.getResponse().getContentAsString();
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void testGetOrderByIdNotFound() throws Exception {
+        when(orderService.getOrderById(1L)).thenThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
+
+        mockMvc.perform(get(SPECIFIC_ORDER_URL, 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Order not found"));
+    }
+
+    @Test
+    void testGetOrderByIdInvalidId() throws Exception {
+        mockMvc.perform(get(SPECIFIC_ORDER_URL, "invalidId")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
