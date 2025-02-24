@@ -163,6 +163,21 @@ public class OrderControllerTest {
     }
 
     @Test
+    void testCreateOrderValidationFailsWhenDeliveryAddressIsNull() throws Exception {
+        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
+                .restaurantId(1L)
+                .customerId(1L)
+                .orderLines(Collections.emptyList())
+                .build();
+
+        mockMvc.perform(post(ORDERS_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequestDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"deliveryAddress\":\"Delivery address cannot be null or empty\"}"));
+    }
+
+    @Test
     void testCreateOrderValidationFailsWhenDeliveryAddressIsEmpty() throws Exception {
         final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
                 .restaurantId(1L)
