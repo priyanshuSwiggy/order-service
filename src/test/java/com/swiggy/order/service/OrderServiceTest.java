@@ -145,10 +145,9 @@ public class OrderServiceTest {
             .id(1L)
                 .status(OrderStatus.CREATED)
                 .build();
-
     when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
 
-        orderService.updateOrderStatus(1L, OrderStatus.DELIVERED);
+    orderService.updateOrderStatus(1L, OrderStatus.DELIVERED);
 
     verify(orderRepository, times(1)).save(order);
     assertEquals(OrderStatus.DELIVERED, order.getStatus());
