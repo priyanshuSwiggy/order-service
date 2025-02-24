@@ -290,5 +290,13 @@ public class OrderControllerTest {
                 .andExpect(content().string("Order status updated successfully"));
     }
 
+    @Test
+    void testUpdateOrderStatusNotFound() throws Exception {
+        doThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND)).when(orderService).updateOrderStatus(1L);
 
+        mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Order not found"));
+    }
 }
