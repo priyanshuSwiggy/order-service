@@ -6,9 +6,11 @@ import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.entity.Order;
 import com.swiggy.order.entity.OrderLine;
+import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
 import com.swiggy.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,11 +42,15 @@ public class OrderService {
     }
 
     public List<OrderResponseDto> getAllOrders() {
-        return null;
+        return orderRepository.findAll().stream()
+                .map(OrderResponseDto::new)
+                .toList();
     }
 
     public OrderResponseDto getOrderById(Long orderId) {
-        return null;
+        return orderRepository.findById(orderId)
+                .map(OrderResponseDto::new)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
     }
 
     public void updateOrderStatus(Long orderId) {
