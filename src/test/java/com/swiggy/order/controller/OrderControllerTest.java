@@ -116,54 +116,6 @@ public class OrderControllerTest {
                 .andExpect(content().json("{\"restaurantId\":\"Restaurant Id should be positive\"}"));
     }
 
-//    @Test
-//    void testCreateOrderValidationFailsWhenUserIdIsNull() throws Exception {
-//        final Long userId = 1L;
-//        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
-//                .restaurantId(1L)
-//                .deliveryAddress("123 Main St")
-//                .orderLines(Collections.emptyList())
-//                .build();
-//
-//        mockMvc.perform(post(ORDERS_URL, userId)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(orderRequestDto)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().json("{\"userId\":\"User Id cannot be null\"}"));
-//    }
-//
-//    @Test
-//    void testCreateOrderValidationFailsWhenUserIdIsZero() throws Exception {
-//        final Long userId = 1L;
-//        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
-//                .restaurantId(1L)
-//                .deliveryAddress("123 Main St")
-//                .orderLines(Collections.emptyList())
-//                .build();
-//
-//        mockMvc.perform(post(ORDERS_URL, userId)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(orderRequestDto)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().json("{\"userId\":\"User Id should be positive\"}"));
-//    }
-//
-//    @Test
-//    void testCreateOrderValidationFailsWhenUserIdIsNegative() throws Exception {
-//        final Long userId = 1L;
-//        final OrderRequestDto orderRequestDto = OrderRequestDto.builder()
-//                .restaurantId(1L)
-//                .deliveryAddress("123 Main St")
-//                .orderLines(Collections.emptyList())
-//                .build();
-//
-//        mockMvc.perform(post(ORDERS_URL, userId)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(orderRequestDto)))
-//                .andExpect(status().isBadRequest())
-//                .andExpect(content().json("{\"userId\":\"User Id should be positive\"}"));
-//    }
-
     @Test
     void testCreateOrderValidationFailsWhenDeliveryAddressIsNull() throws Exception {
         final Long userId = 1L;

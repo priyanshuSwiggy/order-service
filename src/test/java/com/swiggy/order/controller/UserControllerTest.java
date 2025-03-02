@@ -35,11 +35,8 @@ public class UserControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private UserDto userDto;
-
     @BeforeEach
     void setUp() {
-        userDto = UserDto.builder().username("username").password("password").build();
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(userController)
                 .setControllerAdvice(new GlobalExceptionHandler()).build();
@@ -47,6 +44,7 @@ public class UserControllerTest {
 
     @Test
     public void testRegisterUserSuccessfullyWhenValidInputFromUser() throws Exception {
+        UserDto userDto = UserDto.builder().username("username").password("password").build();
         doNothing().when(userService).register(userDto);
 
         mockMvc.perform(post(USER_REGISTER_URL)
@@ -58,6 +56,7 @@ public class UserControllerTest {
 
     @Test
     public void testRegisterUserFailureWhenSameUserRegistersAgain() throws Exception {
+        UserDto userDto = UserDto.builder().username("username").password("password").build();
         doThrow(new UserAlreadyExistsException("User already exists", HttpStatus.CONFLICT)).when(userService).register(userDto);
 
         mockMvc.perform(post(USER_REGISTER_URL)
@@ -65,5 +64,73 @@ public class UserControllerTest {
                         .content(objectMapper.writeValueAsString(userDto)))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("User already exists"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenUsernameIsNull() throws Exception {
+        UserDto userDto = UserDto.builder().username(null).password("password").build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"username\":\"Username cannot be null or empty\"}"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenPasswordIsNull() throws Exception {
+        UserDto userDto = UserDto.builder().username("username").password(null).build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"password\":\"Password cannot be null or empty\"}"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenUsernameIsEmpty() throws Exception {
+        UserDto userDto = UserDto.builder().username("").password("password").build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"username\":\"Username cannot be null or empty\"}"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenPasswordIsEmpty() throws Exception {
+        UserDto userDto = UserDto.builder().username("username").password("").build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"password\":\"Password cannot be null or empty\"}"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenUsernameIsTooLong() throws Exception {
+        String longUsername = "a".repeat(256);
+        UserDto userDto = UserDto.builder().username(longUsername).password("password").build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"username\":\"Username cannot be longer than 255 characters\"}"));
+    }
+
+    @Test
+    public void testRegisterUserFailureWhenPasswordIsTooLong() throws Exception {
+        String longPassword = "a".repeat(256);
+        UserDto userDto = UserDto.builder().username("username").password(longPassword).build();
+
+        mockMvc.perform(post(USER_REGISTER_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json("{\"password\":\"Password cannot be longer than 255 characters\"}"));
     }
 }
