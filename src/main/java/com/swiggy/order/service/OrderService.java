@@ -6,6 +6,7 @@ import com.swiggy.order.dto.OrderRequestDto;
 import com.swiggy.order.dto.OrderResponseDto;
 import com.swiggy.order.entity.Order;
 import com.swiggy.order.entity.OrderLine;
+import com.swiggy.order.entity.User;
 import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
@@ -21,44 +22,52 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final UserService userService;
     private final CatalogProxyService catalogProxyService;
 
-    public void createOrder(OrderRequestDto orderRequestDto) {
+    public void createOrder(Long userId, OrderRequestDto orderRequestDto) {
+        User user = userService.fetchUser(userId);
         List<OrderLineRequestDto> orderLineRequests = orderRequestDto.getOrderLines();
         List<OrderLine> orderLines = orderLineRequests.stream().map(item -> {
             MenuItemDto menuItemDto = catalogProxyService.getMenuItemByIdAndRestaurantId(orderRequestDto.getRestaurantId(), item.getMenuItemId());
-            return OrderLine.builder().menuItemId(item.getMenuItemId()).menuItemName(menuItemDto.getName()).quantity(item.getQuantity()).price(menuItemDto.getPrice()).build();
+            return OrderLine.builder().menuItemId(item.getMenuItemId()).menuItemName(menuItemDto.getName()).quantity(item.getQuantity()).price(menuItemDto.getPrice()).currency(menuItemDto.getCurrency()).build();
         }).toList();
         double totalPrice = orderLines.stream()
                 .mapToDouble(orderLine -> orderLine.getPrice() * orderLine.getQuantity())
                 .sum();
         Order order = Order.builder()
                 .restaurantId(orderRequestDto.getRestaurantId())
-                .customerId(orderRequestDto.getCustomerId())
                 .totalPrice(totalPrice)
                 .deliveryAddress(orderRequestDto.getDeliveryAddress())
                 .status(OrderStatus.CREATED)
                 .orderLines(orderLines)
+                .user(user)
                 .build();
         orderRepository.save(order);
     }
 
-    public List<OrderResponseDto> getAllOrders() {
+    public List<OrderResponseDto> getAllOrders(Long userId) {
+        userService.fetchUser(userId);
         return orderRepository.findAll().stream()
                 .map(OrderResponseDto::new)
                 .toList();
     }
 
-    public OrderResponseDto getOrderById(Long orderId) {
-        return orderRepository.findById(orderId)
-                .map(OrderResponseDto::new)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
+    public OrderResponseDto getOrderById(Long userId, Long orderId) {
+        Order order = fetchOrder(userId, orderId);
+        System.out.println(order.getOrderLines());
+        return new OrderResponseDto(order);
     }
 
-    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
+    public void updateOrderStatus(Long userId, Long orderId, OrderStatus orderStatus) {
+        Order order = fetchOrder(userId, orderId);
         order.setStatus(orderStatus);
         orderRepository.save(order);
+    }
+
+    private Order fetchOrder(Long userId, Long orderId) {
+        User user = userService.fetchUser(userId);
+        return orderRepository.findByIdAndUser(orderId, user)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND));
     }
 }

@@ -16,10 +16,6 @@ public class OrderRequestDto {
     @Positive(message = "Restaurant Id should be positive")
     private Long restaurantId;
 
-    @NotNull(message = "Customer Id cannot be null")
-    @Positive(message = "Customer Id should be positive")
-    private Long customerId;
-
     @NotBlank(message = "Delivery address cannot be null or empty")
     @Size(max = 255, message = "Delivery address cannot exceed 255 characters")
     private String deliveryAddress;

@@ -1,5 +1,7 @@
 package com.swiggy.order.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.swiggy.order.enums.Currency;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,4 +22,6 @@ public class OrderLine {
     private String menuItemName;
     private double price;
     private int quantity;
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 }

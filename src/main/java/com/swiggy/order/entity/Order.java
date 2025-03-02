@@ -19,7 +19,6 @@ public class Order {
     private Long id;
 
     private Long restaurantId;
-    private Long customerId;
     private double totalPrice;
 
     private String deliveryAddress;
@@ -30,5 +29,9 @@ public class Order {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id")
     private List<OrderLine> orderLines;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
 
 }

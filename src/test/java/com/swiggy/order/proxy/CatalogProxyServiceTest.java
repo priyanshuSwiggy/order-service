@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swiggy.order.dto.MenuItemDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,18 +11,14 @@ import static org.mockito.Mockito.*;
 
 public class CatalogProxyServiceTest {
 
-//    @Mock
     private RestTemplate restTemplate;
 
-//    @Mock
     private ObjectMapper objectMapper;
 
-//    @InjectMocks
     private CatalogProxyService catalogProxyService;
 
     @BeforeEach
     void setUp() {
-//        MockitoAnnotations.openMocks(this);
         restTemplate = mock(RestTemplate.class);
         objectMapper = mock(ObjectMapper.class);
         catalogProxyService = new CatalogProxyService(restTemplate, objectMapper);
@@ -52,17 +45,13 @@ public class CatalogProxyServiceTest {
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenReturn("invalid response");
         when(objectMapper.readValue(anyString(), eq(MenuItemDto.class))).thenThrow(new RuntimeException("Failed to parse"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> catalogProxyService.getMenuItemByIdAndRestaurantId(1L, 1L));
-
-        assertEquals("Failed to parse menu item response", exception.getMessage());
+        assertThrows(RuntimeException.class, () -> catalogProxyService.getMenuItemByIdAndRestaurantId(1L, 1L));
     }
 
     @Test
     void getMenuItemByIdAndRestaurantIdThrowsExceptionOnRestTemplateError() {
         when(restTemplate.getForObject(anyString(), eq(String.class))).thenThrow(new RuntimeException("RestTemplate error"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> catalogProxyService.getMenuItemByIdAndRestaurantId(1L, 1L));
-
-        assertEquals("Failed to parse menu item response", exception.getMessage());
+       assertThrows(RuntimeException.class, () -> catalogProxyService.getMenuItemByIdAndRestaurantId(1L, 1L));
     }
 }

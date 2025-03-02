@@ -1,6 +1,7 @@
 package com.swiggy.order.dto;
 
 import com.swiggy.order.entity.OrderLine;
+import com.swiggy.order.enums.Currency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class OrderLineResponseDto {
     private String menuItemName;
     private double price;
     private int quantity;
+    private Currency currency;
 
     public OrderLineResponseDto(OrderLine orderLine) {
         this.orderLineId = orderLine.getId();
@@ -21,5 +23,6 @@ public class OrderLineResponseDto {
         this.menuItemName = orderLine.getMenuItemName();
         this.price = orderLine.getPrice();
         this.quantity = orderLine.getQuantity();
+        this.currency = orderLine.getCurrency();
     }
 }
