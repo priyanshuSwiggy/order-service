@@ -11,6 +11,7 @@ import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.MenuItemNotFoundException;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
+import com.swiggy.order.proxy.FulfillmentProxyService;
 import com.swiggy.order.repository.OrderRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ public class OrderServiceTest {
     private OrderRepository orderRepository;
     private UserService userService;
     private CatalogProxyService catalogProxyService;
+    private FulfillmentProxyService fulfillmentProxyService;
     private OrderService orderService;
 
     @BeforeEach
@@ -36,7 +38,8 @@ public class OrderServiceTest {
         orderRepository = mock(OrderRepository.class);
         userService= mock(UserService.class);
         catalogProxyService = mock(CatalogProxyService.class);
-        orderService = new OrderService(orderRepository, userService, catalogProxyService);
+        fulfillmentProxyService = mock(FulfillmentProxyService.class);
+        orderService = new OrderService(orderRepository, userService, catalogProxyService, fulfillmentProxyService);
     }
 
     @Test
@@ -173,10 +176,10 @@ public class OrderServiceTest {
         when(userService.fetchUser(userId)).thenReturn(user);
         when(orderRepository.findByIdAndUser(orderId, user)).thenReturn(Optional.of(order));
 
-        orderService.updateOrderStatus(userId, orderId, OrderStatus.DELIVERED);
+        orderService.updateOrderStatus(userId, orderId);
 
         verify(orderRepository, times(1)).save(order);
-        assertEquals(OrderStatus.DELIVERED, order.getStatus());
+        assertEquals(OrderStatus.OUT_FOR_DELIVERY, order.getStatus());
     }
 
     @Test
@@ -187,7 +190,7 @@ public class OrderServiceTest {
         when(userService.fetchUser(userId)).thenReturn(user);
         when(orderRepository.findByIdAndUser(orderId, user)).thenReturn(Optional.empty());
 
-        assertThrows(OrderNotFoundException.class, () -> orderService.updateOrderStatus(userId, orderId, OrderStatus.DELIVERED));
+        assertThrows(OrderNotFoundException.class, () -> orderService.updateOrderStatus(userId, orderId));
     }
 
 }

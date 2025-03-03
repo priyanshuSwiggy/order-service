@@ -10,6 +10,7 @@ import com.swiggy.order.entity.User;
 import com.swiggy.order.enums.OrderStatus;
 import com.swiggy.order.exceptions.OrderNotFoundException;
 import com.swiggy.order.proxy.CatalogProxyService;
+import com.swiggy.order.proxy.FulfillmentProxyService;
 import com.swiggy.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final CatalogProxyService catalogProxyService;
+    private final FulfillmentProxyService fulfillmentProxyService;
 
     public void createOrder(Long userId, OrderRequestDto orderRequestDto) {
         User user = userService.fetchUser(userId);
@@ -44,6 +46,7 @@ public class OrderService {
                 .user(user)
                 .build();
         orderRepository.save(order);
+        fulfillmentProxyService.assignDeliveryAgent(userId, order.getId());
     }
 
     public List<OrderResponseDto> getAllOrders(Long userId) {
@@ -55,13 +58,12 @@ public class OrderService {
 
     public OrderResponseDto getOrderById(Long userId, Long orderId) {
         Order order = fetchOrder(userId, orderId);
-        System.out.println(order.getOrderLines());
         return new OrderResponseDto(order);
     }
 
-    public void updateOrderStatus(Long userId, Long orderId, OrderStatus orderStatus) {
+    public void updateOrderStatus(Long userId, Long orderId) {
         Order order = fetchOrder(userId, orderId);
-        order.setStatus(orderStatus);
+        order.setStatus(OrderStatus.OUT_FOR_DELIVERY);
         orderRepository.save(order);
     }
 

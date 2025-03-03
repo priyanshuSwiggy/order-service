@@ -247,10 +247,10 @@ public class OrderControllerTest {
     void testUpdateOrderStatusSuccessfully() throws Exception {
         final Long userId = 1L;
         final Long orderId = 1L;
-        doNothing().when(orderService).updateOrderStatus(userId, orderId, OrderStatus.DELIVERED);
+        doNothing().when(orderService).updateOrderStatus(userId, orderId);
 
         mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, userId, orderId)
-                        .param("orderStatus", OrderStatus.DELIVERED.name())
+                        .param("orderStatus", OrderStatus.OUT_FOR_DELIVERY.name())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Order status updated successfully"));
@@ -260,10 +260,10 @@ public class OrderControllerTest {
     void testUpdateOrderStatusNotFound() throws Exception {
         final Long userId = 1L;
         final Long orderId = 1L;
-        doThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND)).when(orderService).updateOrderStatus(userId, orderId, OrderStatus.DELIVERED);
+        doThrow(new OrderNotFoundException("Order not found", HttpStatus.NOT_FOUND)).when(orderService).updateOrderStatus(userId, orderId);
 
         mockMvc.perform(put(UPDATE_ORDER_STATUS_URL, userId, orderId)
-                        .param("orderStatus", OrderStatus.DELIVERED.name())
+                        .param("orderStatus", OrderStatus.OUT_FOR_DELIVERY.name())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Order not found"));

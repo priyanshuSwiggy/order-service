@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "./proto";
+
+service DeliveryAgentService{
+  rpc CreateDeliveryAgent(CreateDeliveryAgentRequest) returns (CreateDeliveryAgentResponse);
+  rpc AssignDeliveryAgent(AssignDeliveryAgentRequest) returns (AssignDeliveryAgentResponse);
+}
+
+message CreateDeliveryAgentRequest{
+  string name = 1;
+  string city = 2;
+}
+message CreateDeliveryAgentResponse{
+  string response = 1;
+}
+
+message AssignDeliveryAgentRequest{
+  uint32 userId = 1;
+  uint32 orderId = 2;
+}
+message AssignDeliveryAgentResponse{
+  string response = 1;
+}
